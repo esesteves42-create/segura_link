@@ -1,7 +1,7 @@
 import { useState } from "react";
 import InteractiveMap from "@/components/dashboard/InteractiveMap";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Globe, Satellite, Layers, MapPin, Mountain } from "lucide-react";
+import { ArrowLeft, Globe, Satellite, Layers, MapPin, Mountain, Navigation } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -49,9 +49,17 @@ const DashboardGeo = () => {
               <p className="text-muted-foreground">Mapeamento e Análise Geoespacial</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Satellite className="h-5 w-5 text-muted-foreground" />
-            <span className="text-sm text-muted-foreground">Última atualização: Hoje, 14:30</span>
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard/tracking">
+              <Button variant="default" size="sm" className="gap-2">
+                <Navigation className="h-4 w-4" />
+                GPS Tracking
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <Satellite className="h-5 w-5 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Última atualização: Hoje, 14:30</span>
+            </div>
           </div>
         </div>
 

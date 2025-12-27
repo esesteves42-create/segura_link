@@ -1,0 +1,49 @@
+/* Estilos customizados para Leaflet */
+
+/* Marcador com animação de pulse */
+.tracking-marker-pulse {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+/* Popup customizado */
+.leaflet-popup-content-wrapper {
+  border-radius: 8px;
+  padding: 0;
+}
+
+.leaflet-popup-content {
+  margin: 12px;
+  font-size: 14px;
+}
+
+/* Marcador rotacionado (para direção) */
+.tracking-marker-rotated {
+  transition: transform 0.3s ease;
+}
+
+/* Controles de zoom customizados */
+.leaflet-control-zoom a {
+  border-radius: 4px;
+}
+
+/* Polyline animada (opcional) */
+@keyframes dash {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.animated-polyline {
+  stroke-dasharray: 10 5;
+  stroke-dashoffset: 100;
+  animation: dash 30s linear infinite;
+}

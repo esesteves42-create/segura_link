@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import DashboardIoT from "./pages/DashboardIoT";
 import DashboardGeo from "./pages/DashboardGeo";
 import DashboardAlerts from "./pages/DashboardAlerts";
+import DashboardTracking from "./pages/DashboardTracking";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,6 +25,7 @@ const App = () => (
           <Route path="/dashboard/iot" element={<DashboardIoT />} />
           <Route path="/dashboard/geo" element={<DashboardGeo />} />
           <Route path="/dashboard/alerts" element={<DashboardAlerts />} />
+          <Route path="/dashboard/tracking" element={<DashboardTracking />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

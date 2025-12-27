@@ -4,7 +4,7 @@ import SensorCharts from "@/components/dashboard/SensorCharts";
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import InteractiveMap from "@/components/dashboard/InteractiveMap";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Navigation } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Dashboard = () => {
@@ -45,9 +45,17 @@ const Dashboard = () => {
               <p className="text-muted-foreground">Monitoramento em Tempo Real</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-success animate-pulse"></div>
-            <span className="text-sm text-muted-foreground">Sistema Ativo</span>
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard/tracking">
+              <Button variant="default" className="gap-2">
+                <Navigation className="h-4 w-4" />
+                GPS Tracking
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-success animate-pulse"></div>
+              <span className="text-sm text-muted-foreground">Sistema Ativo</span>
+            </div>
           </div>
         </div>
 

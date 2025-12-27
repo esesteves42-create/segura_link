@@ -1,7 +1,7 @@
 import { useState } from "react";
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Bell, BellRing, Mail, MessageSquare, Phone, Settings } from "lucide-react";
+import { ArrowLeft, Bell, BellRing, Mail, MessageSquare, Phone, Settings, Navigation } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -108,9 +108,17 @@ const DashboardAlerts = () => {
               <p className="text-muted-foreground">Centro de Notificações e Alertas</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <BellRing className="h-5 w-5 text-orange-500 animate-pulse" />
-            <span className="text-sm text-muted-foreground">2 Alertas Críticos Ativos</span>
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard/tracking">
+              <Button variant="default" size="sm" className="gap-2">
+                <Navigation className="h-4 w-4" />
+                GPS Tracking
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <BellRing className="h-5 w-5 text-orange-500 animate-pulse" />
+              <span className="text-sm text-muted-foreground">2 Alertas Críticos Ativos</span>
+            </div>
           </div>
         </div>
 

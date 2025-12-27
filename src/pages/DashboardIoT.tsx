@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import SensorCharts from "@/components/dashboard/SensorCharts";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Wifi, WifiOff, Radio } from "lucide-react";
+import { ArrowLeft, Wifi, WifiOff, Radio, Navigation } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -75,9 +75,17 @@ const DashboardIoT = () => {
               <p className="text-muted-foreground">Rede de Sensores em Tempo Real</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            <div className="h-2 w-2 rounded-full bg-success animate-pulse"></div>
-            <span className="text-sm text-muted-foreground">6 Sensores Ativos</span>
+          <div className="flex items-center gap-4">
+            <Link to="/dashboard/tracking">
+              <Button variant="default" size="sm" className="gap-2">
+                <Navigation className="h-4 w-4" />
+                GPS Tracking
+              </Button>
+            </Link>
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-success animate-pulse"></div>
+              <span className="text-sm text-muted-foreground">6 Sensores Ativos</span>
+            </div>
           </div>
         </div>
 
