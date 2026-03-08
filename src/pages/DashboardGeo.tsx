@@ -1,10 +1,9 @@
 import { useState } from "react";
 import InteractiveMap from "@/components/dashboard/InteractiveMap";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Globe, Satellite, Layers, MapPin, Mountain, Navigation } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Satellite, Layers, MapPin, Mountain } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 
 const DashboardGeo = () => {
@@ -31,40 +30,8 @@ const DashboardGeo = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-green-500/5">
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="outline" size="icon">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-                <Globe className="h-8 w-8 text-green-500" />
-                Dashboard Geoinformação
-              </h1>
-              <p className="text-muted-foreground">Mapeamento e Análise Geoespacial</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard/tracking">
-              <Button variant="default" size="sm" className="gap-2">
-                <Navigation className="h-4 w-4" />
-                GPS Tracking
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <Satellite className="h-5 w-5 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Última atualização: Hoje, 14:30</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Map Layers Controls */}
-        <Card className="mb-6">
+    <div className="p-4 space-y-4">
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Layers className="h-5 w-5" />
@@ -98,8 +65,7 @@ const DashboardGeo = () => {
           </CardContent>
         </Card>
 
-        {/* Main Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Map - 2 columns */}
           <div className="lg:col-span-2">
             <Card>
@@ -158,8 +124,7 @@ const DashboardGeo = () => {
           </div>
         </div>
 
-        {/* Satellite Images */}
-        <Card className="mt-6">
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Satellite className="h-5 w-5" />
@@ -201,8 +166,7 @@ const DashboardGeo = () => {
           </CardContent>
         </Card>
 
-        {/* Terrain Analysis */}
-        <Card className="mt-6">
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Mountain className="h-5 w-5" />
@@ -224,7 +188,6 @@ const DashboardGeo = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 };

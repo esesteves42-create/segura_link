@@ -1,8 +1,7 @@
 import { useState } from "react";
 import AlertsPanel from "@/components/dashboard/AlertsPanel";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Bell, BellRing, Mail, MessageSquare, Phone, Settings, Navigation } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Bell, Mail, MessageSquare, Phone, Settings } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -90,40 +89,8 @@ const DashboardAlerts = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-orange-500/5">
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="outline" size="icon">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-                <Bell className="h-8 w-8 text-orange-500" />
-                Dashboard de Alertas
-              </h1>
-              <p className="text-muted-foreground">Centro de Notificações e Alertas</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard/tracking">
-              <Button variant="default" size="sm" className="gap-2">
-                <Navigation className="h-4 w-4" />
-                GPS Tracking
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <BellRing className="h-5 w-5 text-orange-500 animate-pulse" />
-              <span className="text-sm text-muted-foreground">2 Alertas Críticos Ativos</span>
-            </div>
-          </div>
-        </div>
-
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+    <div className="p-4 space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {alertStats.map((stat, idx) => (
             <Card key={idx}>
               <CardContent className="pt-6">
@@ -147,8 +114,7 @@ const DashboardAlerts = () => {
           ))}
         </div>
 
-        {/* Main Content */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
           {/* Alert History - 2 columns */}
           <div className="lg:col-span-2">
             <Card>
@@ -199,8 +165,7 @@ const DashboardAlerts = () => {
           </div>
         </div>
 
-        {/* Notification Settings */}
-        <Card className="mt-6">
+      <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Settings className="h-5 w-5" />
@@ -273,7 +238,6 @@ const DashboardAlerts = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 };

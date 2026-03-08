@@ -1,9 +1,7 @@
 import { useState, useEffect } from "react";
 import DashboardStats from "@/components/dashboard/DashboardStats";
 import SensorCharts from "@/components/dashboard/SensorCharts";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Wifi, WifiOff, Radio, Navigation } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Wifi, WifiOff, Radio } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
@@ -57,43 +55,10 @@ const DashboardIoT = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-blue-500/5">
-      <div className="container mx-auto px-4 py-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-4">
-            <Link to="/">
-              <Button variant="outline" size="icon">
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-            </Link>
-            <div>
-              <h1 className="text-3xl font-bold text-foreground flex items-center gap-2">
-                <Wifi className="h-8 w-8 text-blue-500" />
-                Dashboard IoT Integrado
-              </h1>
-              <p className="text-muted-foreground">Rede de Sensores em Tempo Real</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <Link to="/dashboard/tracking">
-              <Button variant="default" size="sm" className="gap-2">
-                <Navigation className="h-4 w-4" />
-                GPS Tracking
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2">
-              <div className="h-2 w-2 rounded-full bg-success animate-pulse"></div>
-              <span className="text-sm text-muted-foreground">6 Sensores Ativos</span>
-            </div>
-          </div>
-        </div>
+    <div className="p-4 space-y-4">
+      <DashboardStats data={realtimeData} />
 
-        {/* Stats Cards */}
-        <DashboardStats data={realtimeData} />
-
-        {/* Sensors Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {sensors.map((sensor) => (
             <Card key={sensor.id} className="hover:shadow-lg transition-shadow">
               <CardHeader>
@@ -151,13 +116,9 @@ const DashboardIoT = () => {
           ))}
         </div>
 
-        {/* Charts */}
-        <div className="mt-6">
-          <SensorCharts data={realtimeData} />
-        </div>
+      <SensorCharts data={realtimeData} />
 
-        {/* Network Info */}
-        <Card className="mt-6">
+      <Card>
           <CardHeader>
             <CardTitle>Informações da Rede LoRaWAN</CardTitle>
             <CardDescription>Conectividade e cobertura de rede</CardDescription>
@@ -182,7 +143,6 @@ const DashboardIoT = () => {
             </div>
           </CardContent>
         </Card>
-      </div>
     </div>
   );
 };
