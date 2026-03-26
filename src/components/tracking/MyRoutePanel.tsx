@@ -114,7 +114,7 @@ export default function MyRoutePanel({ locationState, onCenterRequest }: MyRoute
 
         {/* Estatisticas em tempo real */}
         {hasPosition && (
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-2 gap-2">
             {/* Velocidade atual */}
             <div className="p-3 rounded-lg bg-background/50 border border-border/30 space-y-1">
               <div className="flex items-center gap-1 text-xs text-muted-foreground">

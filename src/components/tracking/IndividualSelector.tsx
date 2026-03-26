@@ -66,7 +66,7 @@ export default function IndividualSelector({
           />
         </div>
       </CardHeader>
-      <CardContent className="space-y-2 max-h-[400px] overflow-y-auto">
+      <CardContent className="space-y-2 max-h-[280px] sm:max-h-[350px] lg:max-h-[400px] overflow-y-auto">
         {filteredIndividuals.map((individual) => {
           const position = positions.get(individual.id);
           const isSelected = selectedId === individual.id;

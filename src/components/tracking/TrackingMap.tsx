@@ -21,6 +21,7 @@ interface TrackingMapProps {
   myRoute?: GPSPosition[];
   centerOnMe?: boolean;
   onCenterOnMeDone?: () => void;
+  isMobile?: boolean;
 }
 
 // Componente auxiliar para controlar o centro do mapa
@@ -44,6 +45,7 @@ export default function TrackingMap({
   myRoute = [],
   centerOnMe = false,
   onCenterOnMeDone,
+  isMobile = false,
 }: TrackingMapProps) {
   // Calcular centro do mapa baseado nas posições
   const mapCenter: LatLngExpression = useMemo(() => {
@@ -83,18 +85,25 @@ export default function TrackingMap({
 
   const mapZoom = selectedIndividualId ? 15 : 13;
 
+  // Altura responsiva: mobile 380px, tablet 500px, desktop 700px
+  const cardHeight = isMobile ? 'h-[380px]' : 'h-[380px] md:h-[500px] lg:h-[700px]';
+  const contentHeight = isMobile
+    ? 'h-[calc(100%-60px)]'
+    : 'h-[calc(100%-60px)] md:h-[calc(100%-70px)] lg:h-[calc(100%-80px)]';
+
   return (
-    <Card className="h-[700px] overflow-hidden border-border/50 bg-card/50 backdrop-blur">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Navigation className="h-5 w-5 text-primary" />
-          Mapa de Rastreamento GPS
-          <span className="ml-auto text-sm font-normal text-muted-foreground">
+    <Card className={`${cardHeight} overflow-hidden border-border/50 bg-card/50 backdrop-blur`}>
+      <CardHeader className="py-3 px-4 lg:p-6">
+        <CardTitle className="flex items-center gap-2 text-sm lg:text-base">
+          <Navigation className="h-4 w-4 lg:h-5 lg:w-5 text-primary" />
+          <span className="hidden sm:inline">Mapa de Rastreamento GPS</span>
+          <span className="sm:hidden">Mapa GPS</span>
+          <span className="ml-auto text-xs font-normal text-muted-foreground">
             {individuals.filter(i => i.status === 'active').length} ativos
           </span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="h-[calc(100%-80px)] p-0">
+      <CardContent className={`${contentHeight} p-0`}>
         <MapContainer
           center={mapCenter}
           zoom={mapZoom}
