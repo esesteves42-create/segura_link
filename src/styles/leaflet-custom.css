@@ -1,5 +1,17 @@
 /* Estilos customizados para Leaflet */
 
+/* Animacao do circulo pulsante do marcador GPS pessoal (estilo Uber) */
+@keyframes myLocationPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.4;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0.1;
+  }
+}
+
 /* Marcador com animação de pulse */
 .tracking-marker-pulse {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;

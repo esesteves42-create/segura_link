@@ -1,9 +1,12 @@
+import { useState } from "react";
 import { useGPSTracking } from "@/hooks/use-gps-tracking";
 import { useTrackingCalculations } from "@/hooks/use-tracking-calculations";
+import { useMyLocation } from "@/hooks/use-my-location";
 import TrackingMap from "@/components/tracking/TrackingMap";
 import TrackingStats from "@/components/tracking/TrackingStats";
 import IndividualSelector from "@/components/tracking/IndividualSelector";
 import TrackingInfoPanel from "@/components/tracking/TrackingInfoPanel";
+import MyRoutePanel from "@/components/tracking/MyRoutePanel";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const DashboardTracking = () => {
@@ -16,6 +19,20 @@ const DashboardTracking = () => {
     selectedStats,
     isLoading,
   } = useGPSTracking();
+
+  // GPS real do utilizador
+  const myLocation = useMyLocation();
+
+  // Controlo de centrar no utilizador
+  const [centerOnMe, setCenterOnMe] = useState(false);
+
+  const handleCenterRequest = () => {
+    setCenterOnMe(true);
+  };
+
+  const handleCenterDone = () => {
+    setCenterOnMe(false);
+  };
 
   // Obter trajeto do indivíduo selecionado
   const selectedTrack = selectedIndividualId
@@ -60,15 +77,27 @@ const DashboardTracking = () => {
             tracks={tracks}
             selectedIndividualId={selectedIndividualId}
             onIndividualSelect={setSelectedIndividualId}
+            myPosition={myLocation.currentPosition}
+            myRoute={myLocation.routeHistory}
+            centerOnMe={centerOnMe}
+            onCenterOnMeDone={handleCenterDone}
           />
         </div>
+
         <div className="lg:col-span-1 space-y-4">
+          {/* Painel de rastreamento pessoal em tempo real */}
+          <MyRoutePanel
+            locationState={myLocation}
+            onCenterRequest={handleCenterRequest}
+          />
+
           <IndividualSelector
             individuals={individuals}
             positions={positions}
             selectedId={selectedIndividualId}
             onSelect={setSelectedIndividualId}
           />
+
           <TrackingInfoPanel
             individual={selectedIndividual}
             stats={selectedStats}

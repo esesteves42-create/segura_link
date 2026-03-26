@@ -1,11 +1,13 @@
 import { MapContainer, TileLayer, useMap } from 'react-leaflet';
-import { useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useCallback, useRef } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Navigation } from "lucide-react";
 import { GPSPosition, TrackedIndividual } from "@/types/gps";
 import { LatLngExpression } from 'leaflet';
 import IndividualMarker from './IndividualMarker';
 import TrackingPolyline from './TrackingPolyline';
+import MyLocationMarker from './MyLocationMarker';
+import MyRoutePolyline from './MyRoutePolyline';
 import "@/styles/leaflet-custom.css";
 
 interface TrackingMapProps {
@@ -14,6 +16,11 @@ interface TrackingMapProps {
   tracks: Map<string, GPSPosition[]>;
   selectedIndividualId?: string | null;
   onIndividualSelect: (id: string) => void;
+  // GPS real do utilizador
+  myPosition?: GPSPosition | null;
+  myRoute?: GPSPosition[];
+  centerOnMe?: boolean;
+  onCenterOnMeDone?: () => void;
 }
 
 // Componente auxiliar para controlar o centro do mapa
@@ -33,9 +40,18 @@ export default function TrackingMap({
   tracks,
   selectedIndividualId,
   onIndividualSelect,
+  myPosition,
+  myRoute = [],
+  centerOnMe = false,
+  onCenterOnMeDone,
 }: TrackingMapProps) {
   // Calcular centro do mapa baseado nas posições
   const mapCenter: LatLngExpression = useMemo(() => {
+    // Se ha posicao real do utilizador e nenhum individuo selecionado, centrar nele
+    if (myPosition && !selectedIndividualId) {
+      return [myPosition.latitude, myPosition.longitude];
+    }
+
     // Se há um indivíduo selecionado, centralizar nele
     if (selectedIndividualId) {
       const selectedPos = positions.get(selectedIndividualId);
@@ -63,7 +79,7 @@ export default function TrackingMap({
 
     // Default: Luanda, Angola
     return [-8.8383, 13.2344];
-  }, [positions, selectedIndividualId]);
+  }, [positions, selectedIndividualId, myPosition]);
 
   const mapZoom = selectedIndividualId ? 15 : 13;
 
@@ -122,6 +138,23 @@ export default function TrackingMap({
               />
             );
           })}
+
+          {/* GPS real do utilizador - rota percorrida */}
+          {myRoute.length >= 2 && (
+            <MyRoutePolyline positions={myRoute} />
+          )}
+
+          {/* GPS real do utilizador - posicao atual */}
+          {myPosition && (
+            <MyLocationMarker
+              position={myPosition}
+              accuracy={myPosition.accuracy}
+              heading={myPosition.heading}
+              speed={myPosition.speed}
+              shouldCenter={centerOnMe}
+              onCenterDone={onCenterOnMeDone}
+            />
+          )}
         </MapContainer>
       </CardContent>
     </Card>
