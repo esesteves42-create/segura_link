@@ -59,47 +59,41 @@ const StatusBar = () => {
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-1 md:gap-3">
         {/* Sensors */}
         <button className="flex items-center gap-1 h-full px-1 hover:bg-white/10 transition-colors">
           <Wifi size={12} />
-          <span>{sensorCount}/6 Online</span>
+          <span className="hidden lg:inline">{sensorCount}/6 Online</span>
         </button>
 
         {/* Alerts */}
         <button className="flex items-center gap-1 h-full px-1 hover:bg-white/10 transition-colors">
           <Bell size={12} />
-          <span>{alertCount} Alerts</span>
+          <span className="hidden lg:inline">{alertCount} Alerts</span>
         </button>
 
         {/* Status */}
-        <button className="flex items-center gap-1 h-full px-1 hover:bg-white/10 transition-colors">
+        <button className="hidden md:flex items-center gap-1 h-full px-1 hover:bg-white/10 transition-colors">
           <CheckCircle2 size={12} />
           <span>Sistema Ativo</span>
         </button>
 
         {/* Time */}
-        <span className="flex items-center gap-1 px-1">
+        <span className="flex items-center gap-1 px-1 text-[11px]">
           {time.toLocaleTimeString("pt-BR", {
             hour: "2-digit",
             minute: "2-digit",
-            second: "2-digit",
           })}
         </span>
 
-        {/* Encoding */}
-        <button className="h-full px-1 hover:bg-white/10 transition-colors">
+        {/* Encoding — apenas desktop */}
+        <button className="hidden lg:flex h-full px-1 hover:bg-white/10 transition-colors">
           UTF-8
         </button>
 
-        {/* Language */}
-        <button className="h-full px-1 hover:bg-white/10 transition-colors">
+        {/* Language — apenas desktop */}
+        <button className="hidden lg:flex h-full px-1 hover:bg-white/10 transition-colors">
           TypeScript React
-        </button>
-
-        {/* Notification bell */}
-        <button className="flex items-center h-full px-1 hover:bg-white/10 transition-colors">
-          <Bell size={12} />
         </button>
       </div>
     </div>

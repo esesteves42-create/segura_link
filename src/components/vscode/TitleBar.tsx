@@ -77,21 +77,25 @@ const TitleBar = () => {
 
   return (
     <div
-      className="flex items-center h-[30px] select-none"
+      className="flex items-center h-[30px] select-none shrink-0"
       style={{ background: "hsl(var(--vscode-titlebar))" }}
     >
-      {/* App Icon */}
-      <div className="flex items-center px-2 gap-1.5">
+      {/* App Icon — sempre visível */}
+      <div className="flex items-center px-2 gap-1.5 shrink-0">
         <svg width="16" height="16" viewBox="0 0 16 16" className="text-[#0098ff]">
           <path
             fill="currentColor"
             d="M14.54 1.47L8.01 7.99l6.53 6.53a.5.5 0 00.46-.5V1.97a.5.5 0 00-.46-.5zM7.3 8l-5.83 5.83a.5.5 0 00.5.17l6.04-2.56L7.3 8zm.71-.71L11.45 3.86 5.97 1.47a.5.5 0 00-.5.17L7.3 7.29h.71zM1 2.17v11.66l5.29-5.29L1.71 3.96A.5.5 0 001 2.17z"
           />
         </svg>
+        {/* Nome da app visível só no mobile (onde nao há titulo centrado com espaço) */}
+        <span className="md:hidden text-[11px] font-semibold text-[hsl(0,0%,80%)]">
+          Segura-Link
+        </span>
       </div>
 
-      {/* Menu Items */}
-      <div className="flex items-center h-full">
+      {/* Menu Items — apenas tablet+ */}
+      <div className="hidden md:flex items-center h-full">
         {menus.map((menu) => (
           <div key={menu.label} className="relative">
             <button
@@ -145,13 +149,16 @@ const TitleBar = () => {
         ))}
       </div>
 
-      {/* Title (center) */}
-      <div className="flex-1 text-center text-[12px] text-[hsl(0,0%,55%)] -webkit-app-region-drag">
+      {/* Title (center) — apenas tablet+ */}
+      <div className="hidden md:flex flex-1 text-center text-[12px] text-[hsl(0,0%,55%)] justify-center">
         Segura-Link - Monitoramento Inteligente
       </div>
 
-      {/* Window Controls */}
-      <div className="flex items-center h-full">
+      {/* Spacer no mobile para empurrar controlos para a direita */}
+      <div className="flex-1 md:hidden" />
+
+      {/* Window Controls — apenas tablet+ */}
+      <div className="hidden md:flex items-center h-full">
         <button className="h-[30px] w-[46px] flex items-center justify-center hover:bg-[hsl(220,13%,22%)] text-[hsl(0,0%,70%)] transition-colors">
           <Minus size={14} />
         </button>
