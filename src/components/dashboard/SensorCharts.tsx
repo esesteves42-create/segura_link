@@ -10,8 +10,15 @@ interface ChartsProps {
   };
 }
 
+interface HistoryPoint {
+  time: string;
+  temperatura: number;
+  humidade: number;
+  solo: number;
+}
+
 const SensorCharts = ({ data }: ChartsProps) => {
-  const [historyData, setHistoryData] = useState<any[]>([]);
+  const [historyData, setHistoryData] = useState<HistoryPoint[]>([]);
 
   useEffect(() => {
     setHistoryData(prev => {

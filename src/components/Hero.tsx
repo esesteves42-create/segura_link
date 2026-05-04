@@ -2,6 +2,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroImage from "@/assets/hero-segura-link.jpg";
+import InstallAppButton from "@/components/InstallAppButton";
 
 const Hero = () => {
   return (
@@ -42,6 +43,7 @@ const Hero = () => {
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
             </Link>
+            <InstallAppButton size="lg" variant="outline" className="text-lg px-8" />
             <Button size="lg" variant="outline" className="text-lg px-8">
               Saber Mais
             </Button>

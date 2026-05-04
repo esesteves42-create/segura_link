@@ -18,7 +18,7 @@ export default function TrackingStats({
   const activeCount = individuals.filter(i => i.status === 'active').length;
 
   let totalDistance = 0;
-  let totalSpeeds: number[] = [];
+  const totalSpeeds: number[] = [];
 
   tracks.forEach((track) => {
     if (track.length >= 2) {

@@ -1,0 +1,33 @@
+{
+  "name": "Segura-Link | Monitoramento Inteligente",
+  "short_name": "Segura-Link",
+  "description": "Plataforma inteligente que integra sensores, geoinformação e IA para monitorar agricultura sustentável, segurança patrimonial e riscos geológicos.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#0a0a0a",
+  "lang": "pt-PT",
+  "categories": ["productivity", "utilities", "business"],
+  "icons": [
+    {
+      "src": "https://res.cloudinary.com/dzmeorljk/image/upload/c_fill,w_192,h_192/v1764958223/segura_link_logo_3_rseu6t.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/dzmeorljk/image/upload/c_fill,w_512,h_512/v1764958223/segura_link_logo_3_rseu6t.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "https://res.cloudinary.com/dzmeorljk/image/upload/c_fill,w_512,h_512/v1764958223/segura_link_logo_3_rseu6t.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

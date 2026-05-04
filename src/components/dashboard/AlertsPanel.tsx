@@ -12,6 +12,34 @@ interface Alert {
   time: string;
 }
 
+const possibleAlerts = [
+  {
+    type: "warning" as const,
+    title: "Humidade Baixa",
+    message: "Humidade do solo abaixo de 30%. Considere irrigação.",
+  },
+  {
+    type: "error" as const,
+    title: "Movimento Detectado",
+    message: "Sensor de movimento ativado na zona norte.",
+  },
+  {
+    type: "info" as const,
+    title: "Actualização de Dados",
+    message: "Novos dados meteorológicos recebidos.",
+  },
+  {
+    type: "warning" as const,
+    title: "Temperatura Elevada",
+    message: "Temperatura acima de 32°C detectada.",
+  },
+  {
+    type: "success" as const,
+    title: "Irrigação Completa",
+    message: "Sistema de irrigação automática concluído.",
+  },
+];
+
 const AlertsPanel = () => {
   const [alerts, setAlerts] = useState<Alert[]>([
     {
@@ -22,34 +50,6 @@ const AlertsPanel = () => {
       time: new Date().toLocaleTimeString(),
     },
   ]);
-
-  const possibleAlerts = [
-    {
-      type: "warning" as const,
-      title: "Humidade Baixa",
-      message: "Humidade do solo abaixo de 30%. Considere irrigação.",
-    },
-    {
-      type: "error" as const,
-      title: "Movimento Detectado",
-      message: "Sensor de movimento ativado na zona norte.",
-    },
-    {
-      type: "info" as const,
-      title: "Actualização de Dados",
-      message: "Novos dados meteorológicos recebidos.",
-    },
-    {
-      type: "warning" as const,
-      title: "Temperatura Elevada",
-      message: "Temperatura acima de 32°C detectada.",
-    },
-    {
-      type: "success" as const,
-      title: "Irrigação Completa",
-      message: "Sistema de irrigação automática concluído.",
-    },
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {

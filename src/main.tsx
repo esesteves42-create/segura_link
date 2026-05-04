@@ -16,3 +16,11 @@ L.Icon.Default.mergeOptions({
 });
 
 createRoot(document.getElementById("root")!).render(<App />);
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {
+      // service worker registration failed — app still works, just no offline cache
+    });
+  });
+}
