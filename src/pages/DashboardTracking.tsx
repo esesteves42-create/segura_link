@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useGPSTracking } from "@/hooks/use-gps-tracking";
 import { useTrackingCalculations } from "@/hooks/use-tracking-calculations";
 import { useMyLocation } from "@/hooks/use-my-location";
+import { useMyIndividual } from "@/hooks/use-individuals";
 import TrackingMap from "@/components/tracking/TrackingMap";
 import TrackingStats from "@/components/tracking/TrackingStats";
 import IndividualSelector from "@/components/tracking/IndividualSelector";
@@ -22,7 +23,8 @@ const DashboardTracking = () => {
     isLoading,
   } = useGPSTracking();
 
-  const myLocation = useMyLocation();
+  const { id: myIndividualId } = useMyIndividual();
+  const myLocation = useMyLocation({ individualId: myIndividualId });
   const [centerOnMe, setCenterOnMe] = useState(false);
 
   const handleCenterDone = () => setCenterOnMe(false);

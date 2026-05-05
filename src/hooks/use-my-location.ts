@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { GPSPosition } from '@/types/gps';
 import { calculateDistance, calculateBearing, bearingToCardinal, formatDistance, formatSpeed, formatDuration } from '@/lib/gps-calculations';
+import { insertPosition } from '@/lib/gps-api';
 
 export interface MyLocationStats {
   currentSpeed: number;       // km/h (do sensor GPS)
@@ -36,6 +37,14 @@ export interface MyLocationState {
   stopTracking: () => void;
   resetRoute: () => void;
   centerOnMe: () => { lat: number; lng: number } | null;
+  syncedToCloud: boolean;
+}
+
+export interface UseMyLocationOptions {
+  /** Se fornecido, cada nova posição é gravada na tabela `positions` para este individual */
+  individualId?: string | null;
+  /** Distância mínima em metros entre pontos guardados na BD (default 5m, evita ruído) */
+  minDistanceMeters?: number;
 }
 
 const DEFAULT_STATS: MyLocationStats = {
@@ -51,7 +60,9 @@ const DEFAULT_STATS: MyLocationStats = {
   pointsRecorded: 0,
 };
 
-export function useMyLocation(): MyLocationState {
+export function useMyLocation(options: UseMyLocationOptions = {}): MyLocationState {
+  const { individualId = null, minDistanceMeters = 5 } = options;
+
   const [currentPosition, setCurrentPosition] = useState<GPSPosition | null>(null);
   const [routeHistory, setRouteHistory] = useState<GPSPosition[]>([]);
   const [isTracking, setIsTracking] = useState(false);
@@ -64,6 +75,12 @@ export function useMyLocation(): MyLocationState {
   const totalDistanceRef = useRef(0);
   const speedsRef = useRef<number[]>([]);
   const positionCountRef = useRef(0);
+  const lastSavedRef = useRef<GPSPosition | null>(null);
+  const individualIdRef = useRef<string | null>(individualId);
+
+  useEffect(() => {
+    individualIdRef.current = individualId;
+  }, [individualId]);
 
   // Limpar watcher ao desmontar
   useEffect(() => {
@@ -134,6 +151,33 @@ export function useMyLocation(): MyLocationState {
     });
   }, []);
 
+  const persistPosition = useCallback(async (gpsPos: GPSPosition) => {
+    const targetId = individualIdRef.current;
+    if (!targetId) return;
+
+    // Throttling por distância para não inundar a BD com ruído GPS parado
+    if (lastSavedRef.current) {
+      const distMeters = calculateDistance(lastSavedRef.current, gpsPos) * 1000;
+      if (distMeters < minDistanceMeters) return;
+    }
+
+    try {
+      await insertPosition(targetId, {
+        latitude: gpsPos.latitude,
+        longitude: gpsPos.longitude,
+        accuracy: gpsPos.accuracy,
+        altitude: gpsPos.altitude,
+        altitudeAccuracy: gpsPos.altitudeAccuracy,
+        heading: gpsPos.heading,
+        speed: gpsPos.speed,
+        timestamp: gpsPos.timestamp,
+      });
+      lastSavedRef.current = gpsPos;
+    } catch {
+      // Falha silenciosa: tracking local continua mesmo se a BD falhar
+    }
+  }, [minDistanceMeters]);
+
   const onPosition = useCallback((position: GeolocationPosition) => {
     setIsLoading(false);
     setError(null);
@@ -159,7 +203,9 @@ export function useMyLocation(): MyLocationState {
       updateStats(gpsPos, updated);
       return updated;
     });
-  }, [updateStats]);
+
+    void persistPosition(gpsPos);
+  }, [updateStats, persistPosition]);
 
   const onError = useCallback((err: GeolocationPositionError) => {
     setIsLoading(false);
@@ -250,5 +296,6 @@ export function useMyLocation(): MyLocationState {
     stopTracking,
     resetRoute,
     centerOnMe,
+    syncedToCloud: !!individualId,
   };
 }

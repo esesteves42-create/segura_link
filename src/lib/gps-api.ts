@@ -1,179 +1,196 @@
-import { GPSPosition, TrackedIndividual, GPSApiResponse } from "@/types/gps";
-import { mockIndividuals, simulators, mockHistoryCache } from "./gps-mock-data";
+import { supabase } from "@/lib/supabase";
+import type { GPSPosition, TrackedIndividual } from "@/types/gps";
+import type { Database, IndividualStatus, IndividualType } from "@/types/database";
 
-// Simular delay de rede
-const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+type IndividualRow = Database["public"]["Tables"]["individuals"]["Row"];
+type PositionRow = Database["public"]["Tables"]["positions"]["Row"];
+type PositionInsert = Database["public"]["Tables"]["positions"]["Insert"];
 
-// Buscar posição atual de um indivíduo
-export async function fetchCurrentPosition(
-  individualId: string
-): Promise<GPSPosition> {
-  await delay(100); // Simula latência de rede
-
-  const simulator = simulators.get(individualId);
-  if (!simulator) {
-    throw new Error(`Individual ${individualId} not found`);
-  }
-
-  return simulator.generateNextPosition();
+function toGPSPosition(row: PositionRow): GPSPosition {
+  return {
+    id: row.id,
+    individualId: row.individual_id,
+    timestamp: row.recorded_at,
+    latitude: row.latitude,
+    longitude: row.longitude,
+    accuracy: row.accuracy,
+    altitude: row.altitude ?? undefined,
+    altitudeAccuracy: row.altitude_accuracy ?? undefined,
+    heading: row.heading ?? undefined,
+    speed: row.speed ?? undefined,
+  };
 }
 
-// Buscar histórico de posições de um indivíduo
+function toTrackedIndividual(row: IndividualRow): TrackedIndividual {
+  return {
+    id: row.id,
+    name: row.name,
+    type: row.type as IndividualType,
+    status: row.status as IndividualStatus,
+    color: row.color,
+    icon: row.icon ?? undefined,
+    metadata: row.metadata as Record<string, unknown> | undefined,
+  };
+}
+
+function toPositionInsert(
+  individualId: string,
+  position: Omit<GPSPosition, "id" | "individualId" | "timestamp"> & { timestamp?: Date | string },
+): PositionInsert {
+  return {
+    individual_id: individualId,
+    latitude: position.latitude,
+    longitude: position.longitude,
+    accuracy: position.accuracy,
+    altitude: position.altitude ?? null,
+    altitude_accuracy: position.altitudeAccuracy ?? null,
+    heading: position.heading ?? null,
+    speed: position.speed ?? null,
+    recorded_at:
+      position.timestamp instanceof Date
+        ? position.timestamp.toISOString()
+        : position.timestamp ?? new Date().toISOString(),
+  };
+}
+
+export async function fetchIndividuals(): Promise<TrackedIndividual[]> {
+  const { data, error } = await supabase
+    .from("individuals")
+    .select("*")
+    .order("created_at", { ascending: true });
+
+  if (error) throw error;
+  return (data ?? []).map(toTrackedIndividual);
+}
+
+export async function fetchCurrentPosition(individualId: string): Promise<GPSPosition | null> {
+  const { data, error } = await supabase
+    .from("positions")
+    .select("*")
+    .eq("individual_id", individualId)
+    .order("recorded_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error) throw error;
+  return data ? toGPSPosition(data) : null;
+}
+
+export async function fetchAllActivePositions(): Promise<Map<string, GPSPosition>> {
+  const { data: individuals, error: indErr } = await supabase
+    .from("individuals")
+    .select("id")
+    .eq("status", "active");
+
+  if (indErr) throw indErr;
+
+  const result = new Map<string, GPSPosition>();
+  if (!individuals || individuals.length === 0) return result;
+
+  const latest = await Promise.all(
+    individuals.map(({ id }) =>
+      supabase
+        .from("positions")
+        .select("*")
+        .eq("individual_id", id)
+        .order("recorded_at", { ascending: false })
+        .limit(1)
+        .maybeSingle()
+        .then((r) => ({ id, data: r.data })),
+    ),
+  );
+
+  for (const { id, data } of latest) {
+    if (data) result.set(id, toGPSPosition(data));
+  }
+  return result;
+}
+
 export async function fetchPositionHistory(
   individualId: string,
   startTime: Date,
-  endTime: Date
+  endTime: Date,
 ): Promise<GPSPosition[]> {
-  await delay(200);
+  const { data, error } = await supabase
+    .from("positions")
+    .select("*")
+    .eq("individual_id", individualId)
+    .gte("recorded_at", startTime.toISOString())
+    .lte("recorded_at", endTime.toISOString())
+    .order("recorded_at", { ascending: true });
 
-  const history = mockHistoryCache.get(individualId);
-  if (!history) {
-    return [];
-  }
-
-  // Filtrar por intervalo de tempo
-  return history.filter(pos => {
-    const posTime = typeof pos.timestamp === 'string' ? new Date(pos.timestamp) : pos.timestamp;
-    return posTime >= startTime && posTime <= endTime;
-  });
+  if (error) throw error;
+  return (data ?? []).map(toGPSPosition);
 }
 
-// Buscar posições atuais de todos os indivíduos ativos
-export async function fetchAllActivePositions(): Promise<Map<string, GPSPosition>> {
-  await delay(150);
-
-  const positions = new Map<string, GPSPosition>();
-
-  mockIndividuals
-    .filter(ind => ind.status === 'active')
-    .forEach(ind => {
-      const simulator = simulators.get(ind.id);
-      if (simulator) {
-        positions.set(ind.id, simulator.generateNextPosition());
-      }
-    });
-
-  return positions;
-}
-
-// Buscar lista de indivíduos rastreados
-export async function fetchIndividuals(): Promise<TrackedIndividual[]> {
-  await delay(100);
-  return [...mockIndividuals];
-}
-
-// Buscar histórico de trajeto completo (últimas N horas)
 export async function fetchRecentTrack(
   individualId: string,
-  hoursAgo = 2
+  hoursAgo = 2,
 ): Promise<GPSPosition[]> {
   const endTime = new Date();
   const startTime = new Date(endTime.getTime() - hoursAgo * 60 * 60 * 1000);
-
   return fetchPositionHistory(individualId, startTime, endTime);
 }
 
-// ========================================
-// Funções preparadas para backend real
-// (Descomente e ajuste quando tiver API)
-// ========================================
-
-/*
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:3000/api';
-
-export async function fetchCurrentPositionFromAPI(
-  individualId: string
-): Promise<GPSPosition> {
-  const response = await fetch(`${API_BASE_URL}/tracking/${individualId}/current`, {
-    headers: {
-      'Content-Type': 'application/json',
-      // 'Authorization': `Bearer ${token}`,
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch position: ${response.statusText}`);
-  }
-
-  const data: GPSApiResponse<GPSPosition> = await response.json();
-
-  if (!data.success) {
-    throw new Error(data.error || 'Unknown error');
-  }
-
-  return data.data;
-}
-
-export async function fetchPositionHistoryFromAPI(
+export async function insertPosition(
   individualId: string,
-  startTime: Date,
-  endTime: Date
-): Promise<GPSPosition[]> {
-  const params = new URLSearchParams({
-    start: startTime.toISOString(),
-    end: endTime.toISOString()
-  });
+  position: Omit<GPSPosition, "id" | "individualId" | "timestamp"> & { timestamp?: Date | string },
+): Promise<GPSPosition> {
+  const payload = toPositionInsert(individualId, position);
+  const { data, error } = await supabase
+    .from("positions")
+    .insert(payload)
+    .select()
+    .single();
 
-  const response = await fetch(
-    `${API_BASE_URL}/tracking/${individualId}/history?${params}`,
-    {
-      headers: {
-        'Content-Type': 'application/json',
-      }
-    }
-  );
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch history: ${response.statusText}`);
-  }
-
-  const data: GPSApiResponse<GPSPosition[]> = await response.json();
-
-  if (!data.success) {
-    throw new Error(data.error || 'Unknown error');
-  }
-
-  return data.data;
+  if (error) throw error;
+  return toGPSPosition(data);
 }
 
-export async function fetchAllActivePositionsFromAPI(): Promise<Map<string, GPSPosition>> {
-  const response = await fetch(`${API_BASE_URL}/tracking/active`, {
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  });
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch positions: ${response.statusText}`);
-  }
-
-  const data: GPSApiResponse<Record<string, GPSPosition>> = await response.json();
-
-  if (!data.success) {
-    throw new Error(data.error || 'Unknown error');
-  }
-
-  // Converter object para Map
-  return new Map(Object.entries(data.data));
+export interface CreateIndividualInput {
+  name: string;
+  type: IndividualType;
+  color?: string;
+  status?: IndividualStatus;
+  icon?: string;
+  metadata?: Record<string, unknown>;
 }
 
-export async function fetchIndividualsFromAPI(): Promise<TrackedIndividual[]> {
-  const response = await fetch(`${API_BASE_URL}/individuals`, {
-    headers: {
-      'Content-Type': 'application/json',
-    }
-  });
+export async function createIndividual(input: CreateIndividualInput): Promise<TrackedIndividual> {
+  const { data: userData, error: userErr } = await supabase.auth.getUser();
+  if (userErr) throw userErr;
+  if (!userData.user) throw new Error("Not authenticated");
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch individuals: ${response.statusText}`);
-  }
+  const { data, error } = await supabase
+    .from("individuals")
+    .insert({
+      owner_id: userData.user.id,
+      name: input.name,
+      type: input.type,
+      color: input.color ?? "#3b82f6",
+      status: input.status ?? "inactive",
+      icon: input.icon ?? null,
+      metadata: input.metadata ?? null,
+    })
+    .select()
+    .single();
 
-  const data: GPSApiResponse<TrackedIndividual[]> = await response.json();
-
-  if (!data.success) {
-    throw new Error(data.error || 'Unknown error');
-  }
-
-  return data.data;
+  if (error) throw error;
+  return toTrackedIndividual(data);
 }
-*/
+
+export async function updateIndividualStatus(
+  individualId: string,
+  status: IndividualStatus,
+): Promise<void> {
+  const { error } = await supabase
+    .from("individuals")
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq("id", individualId);
+  if (error) throw error;
+}
+
+export async function deleteIndividual(individualId: string): Promise<void> {
+  const { error } = await supabase.from("individuals").delete().eq("id", individualId);
+  if (error) throw error;
+}

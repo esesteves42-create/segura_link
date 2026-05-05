@@ -1,32 +1,68 @@
-import { useQuery } from '@tanstack/react-query';
-import { useState, useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import { useState, useMemo, useEffect } from 'react';
 import {
   fetchAllActivePositions,
   fetchIndividuals,
   fetchRecentTrack
 } from '@/lib/gps-api';
-import { GPSPosition, TrackedIndividual, TrackingStats } from '@/types/gps';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/hooks/use-auth';
+import { GPSPosition } from '@/types/gps';
 import { calculateTrackStats } from '@/lib/gps-calculations';
 
 export function useGPSTracking() {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
   const [selectedIndividualId, setSelectedIndividualId] = useState<string | null>(null);
 
   // Query para indivíduos (cache longo - 5 minutos)
   const individualsQuery = useQuery({
-    queryKey: ['tracked-individuals'],
+    queryKey: ['tracked-individuals', user?.id ?? 'anon'],
     queryFn: fetchIndividuals,
-    staleTime: 5 * 60 * 1000, // 5 minutos
+    enabled: !!user,
+    staleTime: 5 * 60 * 1000,
     refetchOnWindowFocus: false,
   });
 
-  // Query para posições atuais (polling a cada 5 segundos)
+  // Query para posições atuais (realtime invalidates this; polling como fallback)
   const positionsQuery = useQuery({
-    queryKey: ['gps-positions'],
+    queryKey: ['gps-positions', user?.id ?? 'anon'],
     queryFn: fetchAllActivePositions,
-    refetchInterval: 5000, // Atualizar a cada 5s
-    staleTime: 2000,
-    refetchIntervalInBackground: false, // Pausar quando tab inativa
+    enabled: !!user,
+    refetchInterval: 30_000,
+    staleTime: 5_000,
+    refetchIntervalInBackground: false,
   });
+
+  // Realtime: invalida cache quando há nova posição ou alteração nos individuals
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase
+      .channel(`tracking-${user.id}`)
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'positions' },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['gps-positions', user.id] });
+          if (selectedIndividualId) {
+            queryClient.invalidateQueries({ queryKey: ['gps-history', selectedIndividualId] });
+          }
+        },
+      )
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'individuals', filter: `owner_id=eq.${user.id}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ['tracked-individuals', user.id] });
+        },
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user, queryClient, selectedIndividualId]);
 
   // Query para histórico do indivíduo selecionado
   const historyQuery = useQuery({
