@@ -5,8 +5,10 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import VSCodeLayout from "@/components/vscode/VSCodeLayout";
+import ProtectedRoute from "@/components/auth/ProtectedRoute";
 import Index from "./pages/Index";
 
+const Login = lazy(() => import("./pages/Login"));
 const Dashboard = lazy(() => import("./pages/Dashboard"));
 const DashboardIoT = lazy(() => import("./pages/DashboardIoT"));
 const DashboardGeo = lazy(() => import("./pages/DashboardGeo"));
@@ -32,11 +34,27 @@ const App = () => (
           <Suspense fallback={<PageFallback />}>
             <Routes>
               <Route path="/" element={<Index />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/dashboard/iot" element={<DashboardIoT />} />
-              <Route path="/dashboard/geo" element={<DashboardGeo />} />
-              <Route path="/dashboard/alerts" element={<DashboardAlerts />} />
-              <Route path="/dashboard/tracking" element={<DashboardTracking />} />
+              <Route path="/login" element={<Login />} />
+              <Route
+                path="/dashboard"
+                element={<ProtectedRoute><Dashboard /></ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/iot"
+                element={<ProtectedRoute><DashboardIoT /></ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/geo"
+                element={<ProtectedRoute><DashboardGeo /></ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/alerts"
+                element={<ProtectedRoute><DashboardAlerts /></ProtectedRoute>}
+              />
+              <Route
+                path="/dashboard/tracking"
+                element={<ProtectedRoute><DashboardTracking /></ProtectedRoute>}
+              />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

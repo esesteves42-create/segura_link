@@ -8,12 +8,29 @@ import {
   Bell,
   Radio,
   Zap,
+  LogOut,
+  User as UserIcon,
 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/use-auth";
+import { toast } from "sonner";
 
 const StatusBar = () => {
   const [time, setTime] = useState(new Date());
   const [sensorCount] = useState(5);
   const [alertCount] = useState(2);
+  const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      toast.success("Sessão terminada");
+      navigate("/login");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao terminar sessão");
+    }
+  };
 
   useEffect(() => {
     const interval = setInterval(() => setTime(new Date()), 1000);
@@ -77,6 +94,35 @@ const StatusBar = () => {
           <CheckCircle2 size={12} />
           <span>Sistema Ativo</span>
         </button>
+
+        {/* User / auth */}
+        {user ? (
+          <>
+            <button
+              className="hidden md:flex items-center gap-1 h-full px-1 hover:bg-white/10 transition-colors max-w-[180px] truncate"
+              title={user.email ?? ""}
+            >
+              <UserIcon size={12} />
+              <span className="truncate">{user.email}</span>
+            </button>
+            <button
+              onClick={handleSignOut}
+              className="flex items-center gap-1 h-full px-1 hover:bg-white/10 transition-colors"
+              title="Terminar sessão"
+            >
+              <LogOut size={12} />
+              <span className="hidden lg:inline">Sair</span>
+            </button>
+          </>
+        ) : (
+          <button
+            onClick={() => navigate("/login")}
+            className="flex items-center gap-1 h-full px-1 hover:bg-white/10 transition-colors"
+          >
+            <UserIcon size={12} />
+            <span className="hidden md:inline">Entrar</span>
+          </button>
+        )}
 
         {/* Time */}
         <span className="flex items-center gap-1 px-1 text-[11px]">
